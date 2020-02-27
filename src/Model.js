@@ -1,5 +1,5 @@
 const initModel = {
-    city: '',
+    cityInput: '',
     nextId: 0,
     cities: [],
 };
