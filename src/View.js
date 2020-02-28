@@ -3,27 +3,27 @@ import hh from 'hyperscript-helpers';
 import { h } from 'virtual-dom';
 
 import {
-  cityInputMsg,
-  addCityMsg,
-  deleteCityMsg,
+  locationInputMsg,
+  addLocationMsg,
+  removeLocationMsg,
 } from './Update';
 
 const { div, h1, form, label, input, button, ul, li, i, pre } = hh(h);
 
-function searchCityForm(dispatch, inputValue) {
+function locationForm(dispatch, model) {
   return div([
     form({
       onsubmit: e => {
         e.preventDefault();
-        dispatch(addCityMsg(inputValue))
+        dispatch(addLocationMsg)
       }
     }, [
       label({ className: 'f6 b db mb2' }, 'Location'),
       input({
         className: 'pa2 w-60',
         type: 'text',
-        value: inputValue,
-        oninput: e => dispatch(cityInputMsg(e.target.value)),
+        value: model.locationInput,
+        oninput: e => dispatch(locationInputMsg(e.target.value)),
       }),
       button({
         className: 'pv2 ph3 br1',
@@ -33,41 +33,41 @@ function searchCityForm(dispatch, inputValue) {
   ]);
 }
 
-const cityCard = R.curry((dispatch, card) => {
-  const { id, name, temp, low, high } = card;
-
-  return li({ className: 'pa3 bb b--light-silver flex justify-between relative' }, [
-    div({ className: 'w-60 tl' }, [
-      div({ className: 'f7 b' }, 'Location'),
-      div({ className: '' }, name)
-    ]),
-    div({ className: 'w-10 tc' }, [
-      div({ className: 'f7 b' }, 'Temp'),
-      div({ className: '' }, temp)
-    ]),
-    div({ className: 'w-10 tc' }, [
-      div({ className: 'f7 b' }, 'Low'),
-      div({ className: '' }, low)
-    ]),
-    div({ className: 'w-10 tc' }, [
-      div({ className: 'f7 b' }, 'High'),
-      div({ className: '' }, high)
-    ]),
-    i({
-      className: 'relative top--1 right--1 mt1 mr1 fa fa-remove pointer black-40',
-      onclick: () => dispatch(deleteCityMsg(id)),
-    }),
+function cell(className, label, value) {
+  return div({ className }, [
+    div({ className: 'f7 b' }, label),
+    div({}, value),
   ]);
+}
+
+const locationItem = R.curry((dispatch, item) => {
+  const { id, name, temp, low, high } = item;
+
+  return li(
+    { className: 'pa3 bb b--light-silver flex justify-between relative' },
+    [
+      cell('w-60 tl', 'Location', name),
+      cell('w-10 tc', 'Temp', temp),
+      cell('w-10 tc', 'Low', low),
+      cell('w-10 tc mr2', 'High', high),
+      i({
+        className: 'relative top--1 right--1 mt1 mr1 fa fa-remove pointer black-40',
+        onclick: () => dispatch(removeLocationMsg(id)),
+      }),
+    ]
+  );
 });
 
+function locationList(dispatch, model) {
+  const locations = R.map(locationItem(dispatch), model.locations);
+  return ul({ className: ' list pl0 ml0 ba b--light-silver br' }, locations);
+}
+
 function view(dispatch, model) {
-  const { cityInput, cities } = model;
   return div({ className: 'mw6 center' }, [
     h1({ className: 'f2 pv2 bb' }, 'Weather'),
-    searchCityForm(dispatch, cityInput),
-    ul({ className: ' list pl0 ml0 ba b--light-silver br' }, [
-      R.map(cityCard(dispatch), cities)
-    ]),
+    locationForm(dispatch, model),
+    locationList(dispatch, model),
     pre(JSON.stringify(model, null, 2)),
   ]);
 }

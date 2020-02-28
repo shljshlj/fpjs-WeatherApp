@@ -1,13 +1,14 @@
 const initModel = {
-    cityInput: '',
+    locationInput: '',
     nextId: 0,
-    cities: [],
+    locations: [],
 };
 
 export default initModel;
 
 /*
-const city = {
+const location = {
+    id: 0,
     name: '',
     temp: '-',
     low: '-',

@@ -1,42 +1,58 @@
 import * as R from 'ramda';
 
 const MSGS = {
-  CITY_INPUT: 'CITY_INPUT',
+  LOCATION_INPUT: 'LOCATION_INPUT',
   ADD_CITY: 'ADD_CITY',
+  REMOVE_LOCATION: 'REMOVE_LOCATION',
 };
 
-export function cityInputMsg(cityInput) {
+export function locationInputMsg(locationInput) {
   return {
-    type: MSGS.CITY_INPUT,
-    cityInput,
+    type: MSGS.LOCATION_INPUT,
+    locationInput,
   };
 }
 
-export function addCityMsg(city) {
+export const addLocationMsg = {
+    type: MSGS.ADD_LOCATION,
+};
+
+export function removeLocationMsg(id) {
   return {
-    type: MSGS.ADD_CITY,
-    city,
+    type: MSGS.REMOVE_LOCATION,
+    id,
   }
 }
 
+
 function update(msg, model) {
   switch (msg.type) {
-    case MSGS.CITY_INPUT: {
-      const { cityInput } = msg;
-      return { ...model, cityInput };
+    case MSGS.LOCATION_INPUT: {
+      const { locationInput } = msg;
+      return { ...model, locationInput };
     }
-    case MSGS.ADD_CITY: {
-      const { nextId: id } = model;
-      const city = {
-        id,
-        name: msg.city,
+    case MSGS.ADD_LOCATION: {
+      const { nextId, locationInput, locations } = model;
+      const newLocation = {
+        id: nextId,
+        name: locationInput,
         temp: '-',
         low: '-',
         high: '-',
       };
-      const cities = R.prepend(city, model.cities);
-
-      return { ...model, nextId: id + 1, cities, cityInput: '' }
+      const updatedLocations = R.prepend(newLocation, locations);
+      return {
+        ...model,
+        locationInput: '',
+        locations: updatedLocations,
+        nextId: nextId + 1,
+      };
+    }
+    case MSGS.REMOVE_LOCATION: {
+      const { id } = msg;
+      const { locations } = model;
+      const updatedLocations = R.reject(R.propEq('id', id), locations);
+      return { ...model, locations: updatedLocations };
     }
     default:
       return model;
